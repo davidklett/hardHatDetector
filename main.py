@@ -45,21 +45,31 @@ def predict():
     sys.stdout.flush()
     
     image_data = requests.get(image_url).content
-    # with open('./model_files/image_name.jpg', 'wb') as handler:
-    #     handler.write(image_data)
-    # predictions = predict_hardhat('image_name.jpg')
-    # #predictions = picture
-    # result = {
-    #     'hard hat predictions': (predictions)
-    # }
-    # if predictions == hardhat then call graphql
-    query2 = """mutation {
-        change_simple_column_value (board_id: 870269962, item_id: %d, column_id: "status", value: "1") {
-            id
-        }
-    }""" % (itemid)
-    # post to graphql api
-    r = requests.post(myurl,headers=header,json={'query': query2})
+    with open('./model_files/image_name.jpg', 'wb') as handler:
+        handler.write(image_data)
+    predictions = predict_hardhat('image_name.jpg')
+    #predictions = picture
+    result = {
+        'hard hat predictions': (predictions)
+    }
+    #if predictions == hardhat then call graphql
+    if(predictions[0] == 'hardhat'):
+        query2 = """mutation {
+            change_simple_column_value (board_id: 870269962, item_id: %d, column_id: "status", value: "1") {
+                id
+            }
+        }""" % (itemid)
+        # post to graphql api
+        r = requests.post(myurl,headers=header,json={'query': query2})
+    else:
+        query2 = """mutation {
+            change_simple_column_value (board_id: 870269962, item_id: %d, column_id: "status", value: "0") {
+                id
+            }
+        }""" % (itemid)
+        # post to graphql api
+        r = requests.post(myurl,headers=header,json={'query': query2})
+    
     return request.json
 
 # @app.route('/webhook', methods=['POST'])
